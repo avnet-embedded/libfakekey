@@ -1,0 +1,5 @@
+2005-04-06  mallum,,,  <mallum@openedhand.com>
+
+	* libfakekey.pc.in:
+	Add our actual libname
+
