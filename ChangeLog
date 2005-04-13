@@ -1,3 +1,8 @@
+2005-04-13  mallum,,,  <mallum@openedhand.com>
+
+	* src/libfakekey.c: (fakekey_press):
+	bug fix
+
 2005-04-06  mallum,,,  <mallum@openedhand.com>
 
 	* libfakekey.pc.in:

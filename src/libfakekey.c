@@ -293,13 +293,17 @@ fakekey_press(FakeKey       *fk,
 
   if (len_bytes < 0)
     {
+      /*
       unsigned char *p = utf8_char_in;
-      while (*p != '\0') len_bytes++;
+      while (*p != '\0') { len_bytes++; p++; } 
+      */
+      len_bytes = strlen(utf8_char_in); 	/* OK ? */
     }
 
   if (utf8_to_ucs4 (utf8_char_in, &ucs4_out, len_bytes) < 1)
     {
-      printf("failed\n");
+      printf("failed with %i. len is %i\n", 
+	     utf8_to_ucs4 (utf8_char_in, &ucs4_out, len_bytes), len_bytes);
       return 0;
     }
 
