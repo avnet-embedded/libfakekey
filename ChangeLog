@@ -1,3 +1,10 @@
+2005-04-17  mallum,,,  <mallum@openedhand.com>
+
+	* fakekey/fakekey.h:
+	* src/libfakekey.c: (fakekey_send_keyevent),
+	(fakekey_press_keysym):
+	Add new keysym func, rejig code a little to support it
+
 2005-04-13  mallum,,,  <mallum@openedhand.com>
 
 	* src/libfakekey.c: (fakekey_press):

@@ -28,12 +28,16 @@
 
 #include <fakekey/fakekey.h>
 
-#if (DEBUG)
-#define FK_DBG(x, a...) \
- fprintf(stderr, __FILE__ ":%d,%s() " x "\n", __LINE__, __func__, ##a)
+#define WANT_DEBUG 1
+
+#if (WANT_DEBUG)
+#define DBG(x, a...) \
+ fprintf (stderr,  __FILE__ ":%d,%s() " x "\n", __LINE__, __func__, ##a)
 #else
-#define FK_DBG(x, a...) do {} while (0)
+#define DBG(x, a...) do {} while (0)
 #endif
+
+#define MARK() DBG("mark")
 
 #define N_MODIFIER_INDEXES (Mod5MapIndex + 1)
 
@@ -274,6 +278,90 @@ fakekey_send_keyevent(FakeKey *fk,
   XTestFakeKeyEvent(fk->xdpy, keycode, is_press, CurrentTime);
 
   XSync(fk->xdpy, True);
+
+  return 1;
+}
+
+int
+fakekey_press_keysym(FakeKey *fk, 
+		     KeySym   keysym,
+		     int      flags)
+{
+  static int modifiedkey;
+  KeyCode    code = 0;
+
+  if ((code = XKeysymToKeycode(fk->xdpy, keysym)) != 0)
+    {
+      DBG("got keycode, no remap\n");
+
+      /* we already have a keycode for this keysym */
+      /* Does it need a shift key though ? */
+      if (XKeycodeToKeysym(fk->xdpy, code, 0) != keysym)
+	{
+	  DBG("does not equal code for index o, needs shift?\n");
+	  /* TODO: Assumes 1st modifier is shifted  */
+	  if (XKeycodeToKeysym(fk->xdpy, code, 1) == keysym)
+	    flags |= FAKEKEYMOD_SHIFT; 	/* can get at it via shift */
+	  else
+	    code = 0; /* urg, some other modifier do it the heavy way */
+	}
+    }
+
+  if (!code)
+    {
+      int index;
+
+      DBG("remapping kbd to get code\n");
+
+      /* Change one of the last 10 keysyms to our converted utf8,
+       * remapping the x keyboard on the fly. 
+       *
+       * This make assumption the last 10 arn't already used.
+       * TODO: probably safer to check for this. 
+       */
+
+      modifiedkey = (modifiedkey+1) % 10;
+
+      /* Point at the end of keysyms, modifier 0 */
+
+      index = (fk->max_keycode - fk->min_keycode - modifiedkey - 1) * fk->n_keysyms_per_keycode;
+
+      fk->keysyms[index] = keysym;
+      
+      XChangeKeyboardMapping(fk->xdpy, 
+			     fk->min_keycode, 
+			     fk->n_keysyms_per_keycode, 
+			     fk->keysyms, 
+			     (fk->max_keycode-fk->min_keycode));
+
+      XSync(fk->xdpy, True);
+	
+      /* From dasher src;
+       * There's no way whatsoever that this could ever possibly
+       * be guaranteed to work (ever), but it does.
+       *    
+       * code = fk->max_keycode - modifiedkey - 1;
+       *
+       * below instead is probably safer.
+       */
+
+      code = XKeysymToKeycode(fk->xdpy, keysym);
+    }
+
+  if (code != 0) 
+    {
+      fakekey_send_keyevent(fk, code, True, flags);
+
+      fk->held_state_flags = flags;
+      fk->held_keycode     = code;
+
+      return 1;
+    }
+
+  fk->held_state_flags = 0;
+  fk->held_keycode     = 0;
+
+  return 0; 			/* failed */
 }
 
 int
@@ -282,7 +370,6 @@ fakekey_press(FakeKey       *fk,
 	      int            len_bytes,
 	      int            flags)
 {
-  static int modifiedkey;
   FkChar32   ucs4_out;
   KeyCode    code = 0;
 
@@ -316,78 +403,7 @@ fakekey_press(FakeKey       *fk,
   if (ucs4_out > 0x00ff)	       /* < 0xff assume Latin-1 1:1 mapping */
     ucs4_out = ucs4_out | 0x01000000;  /* This gives us the magic X keysym */
 
-  if ((code = XKeysymToKeycode(fk->xdpy, ucs4_out)) != 0)
-    {
-      printf("using fast code\n");
-
-      /* we already have a keycode for this keysym */
-      /* Does it need a shift key though ? */
-      if (XKeycodeToKeysym(fk->xdpy, code, 0) != ucs4_out)
-	{
-	  printf("does not equal code\n");
-	  /* TODO: Assumes 1st modifier is shifted ? */
-	  if (XKeycodeToKeysym(fk->xdpy, code, 1) == ucs4_out)
-	    flags |= FAKEKEYMOD_SHIFT; 	/* can get at it via shift */
-	  else
-	    code = 0; /* urg, some other modifier do it the heavy way */
-	}
-    }
-
-  if (!code)
-    {
-      int index;
-
-      printf("using slow remapping code\n");
-
-      /* Change one of the last 10 keysyms to our converted utf8,
-       * remapping the x keyboard on the fly. 
-       *
-       * This make assumption the last 10 arn't already used.
-       * TODO: probably safer to check for this. 
-       */
-
-      modifiedkey = (modifiedkey+1) % 10;
-
-      /* Point at the end of keysyms, modifier 0 */
-
-      index = (fk->max_keycode - fk->min_keycode - modifiedkey - 1) * fk->n_keysyms_per_keycode;
-
-      fk->keysyms[index] = ucs4_out;
-      
-      XChangeKeyboardMapping(fk->xdpy, 
-			     fk->min_keycode, 
-			     fk->n_keysyms_per_keycode, 
-			     fk->keysyms, 
-			     (fk->max_keycode-fk->min_keycode));
-
-      XSync(fk->xdpy, True);
-	
-      /* From dasher src;
-       * There's no way whatsoever that this could ever possibly
-       * be guaranteed to work (ever), but it does.
-       *    
-       * code = fk->max_keycode - modifiedkey - 1;
-       *
-       * below instead is probably safer.
-       */
-
-	code = XKeysymToKeycode(fk->xdpy, ucs4_out);
-      }
-
-  if (code != 0) 
-    {
-      fakekey_send_keyevent(fk, code, True, flags);
-
-      fk->held_state_flags = flags;
-      fk->held_keycode     = code;
-
-      return 1;
-    }
-
-  fk->held_state_flags = 0;
-  fk->held_keycode     = 0;
-
-  return 0;
+  return fakekey_press_keysym(fk, (KeySym)ucs4_out, flags);
 }
 
 void

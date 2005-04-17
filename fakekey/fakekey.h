@@ -22,7 +22,6 @@ extern "C" {
  * @defgroup FakeKey FakeKey - 
  * @brief yada yada yada
  *
- *
  * Always remember to release held keys
  * @{
  */
@@ -107,7 +106,20 @@ int
 fakekey_reload_keysyms(FakeKey *fk);
 
 /** 
+ * #fakekey_press but with an X keysym rather than a UTF8 Char.
  * 
+ * @param fk        #FakeKey refernce from #fakekey_init
+ * @param keysym     X Keysym to send
+ * @param flags
+ * 
+ * @return  
+ */
+int
+fakekey_press_keysym(FakeKey *fk, 
+		     KeySym   keysym,
+		     int      flags);
+
+/** 
  * 
  * @param fk        #FakeKey refernce from #fakekey_init
  * @param keycode   X Keycode to send
