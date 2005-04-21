@@ -207,8 +207,6 @@ fakekey_init(Display *xdpy)
 	   *        ShiftMapIndex
 	   */
 	  
-	  printf("checking ks\n");
-
 	  switch (ks)
 	    {
 	    case XK_Meta_R:
@@ -223,7 +221,6 @@ fakekey_init(Display *xdpy)
 	      
 	    case XK_Shift_R:
 	    case XK_Shift_L:
-	      printf("got shift\n");
 	      fk->shift_mod_index = mod_index;
 	      break;
 	    }
@@ -232,9 +229,6 @@ fakekey_init(Display *xdpy)
   
   if (modifiers)
     XFreeModifiermap(modifiers);
-
-  printf("index is %i %i\n", 
-	 fk->meta_mod_index, fk->modifier_table[ShiftMapIndex]);
 
   return fk;
 }
@@ -371,7 +365,6 @@ fakekey_press(FakeKey       *fk,
 	      int            flags)
 {
   FkChar32   ucs4_out;
-  KeyCode    code = 0;
 
   if (fk->held_keycode) 	/* key is already held down */
     return 0;
@@ -389,7 +382,7 @@ fakekey_press(FakeKey       *fk,
 
   if (utf8_to_ucs4 (utf8_char_in, &ucs4_out, len_bytes) < 1)
     {
-      printf("failed with %i. len is %i\n", 
+      DBG("failed with %i. len is %i\n", 
 	     utf8_to_ucs4 (utf8_char_in, &ucs4_out, len_bytes), len_bytes);
       return 0;
     }
