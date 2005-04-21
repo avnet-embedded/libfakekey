@@ -2,9 +2,10 @@
 AC_INIT([libfakekey], 0.1, [mallum@openedhand.com])
 AC_CONFIG_SRCDIR([src/libfakekey.c])
 
+AC_CONFIG_AUX_DIR(.)
 AM_INIT_AUTOMAKE()
 AM_CONFIG_HEADER([config.h])
-AC_CONFIG_AUX_DIR(.)
+
 
 # Checks for programs.
 AC_PROG_CC
