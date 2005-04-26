@@ -1,3 +1,10 @@
+2005-04-26  mallum,,,  <mallum@openedhand.com>
+
+	* configure.ac:
+	Remove another minor snafu.
+	* src/libfakekey.c:
+	Make debug configurable from configure
+
 2005-04-21  mallum,,,  <mallum@openedhand.com>
 
 	* configure.ac:

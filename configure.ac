@@ -4,7 +4,7 @@ AC_CONFIG_SRCDIR([src/libfakekey.c])
 
 AC_CONFIG_AUX_DIR(.)
 AM_INIT_AUTOMAKE()
-AM_CONFIG_HEADER([config.h])
+AM_CONFIG_HEADER(config.h)
 
 
 # Checks for programs.
@@ -61,7 +61,7 @@ AC_ARG_ENABLE(debug,
      enable_debug=$enableval, enable_debug=no )
 
 if test x$enable_debug != xno; then
-  FAKEKEY_CFLAGS="$FAKEKEY_CFLAGS -DDEBUG"	
+   AC_DEFINE_UNQUOTED(WANT_DEBUG, 1, [Make a debug (Verbose) Build])
 fi
 
 dnl ------ Doxygen docs ----------------------------------------------------
