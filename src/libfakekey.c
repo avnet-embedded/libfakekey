@@ -268,12 +268,12 @@ fakekey_send_keyevent(FakeKey *fk,
 	XTestFakeKeyEvent(fk->xdpy, fk->modifier_table[fk->alt_mod_index], 
 			  is_press, CurrentTime);
 
-      XSync(fk->xdpy, True);
+      XSync(fk->xdpy, False);
     }
 
   XTestFakeKeyEvent(fk->xdpy, keycode, is_press, CurrentTime);
 
-  XSync(fk->xdpy, True);
+  XSync(fk->xdpy, False);
 
   return 1;
 }
@@ -330,18 +330,28 @@ fakekey_press_keysym(FakeKey *fk,
 			     fk->keysyms, 
 			     (fk->max_keycode-fk->min_keycode));
 
-      XSync(fk->xdpy, True);
+      XSync(fk->xdpy, False);
 	
       /* From dasher src;
        * There's no way whatsoever that this could ever possibly
        * be guaranteed to work (ever), but it does.
        *    
-       * code = fk->max_keycode - modifiedkey - 1;
-       *
-       * below instead is probably safer.
        */
 
-      code = XKeysymToKeycode(fk->xdpy, keysym);
+      code = fk->max_keycode - modifiedkey - 1;
+
+      /* The below is lightly safer;
+       *
+       *  code = XKeysymToKeycode(fk->xdpy, keysym);
+       *
+       * but this appears to break in that the new mapping is not immediatly 
+       * put to work. It would seem a MappingNotify event is needed so
+       * Xlib can do some changes internally ? ( xlib is doing something 
+       * related to above ? )
+       * 
+       * Probably better to try and grab the mapping notify *here* ?
+       */
+  
     }
 
   if (code != 0) 

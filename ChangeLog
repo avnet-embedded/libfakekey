@@ -1,3 +1,11 @@
+2005-04-28  mallum,,,  <mallum@openedhand.com>
+
+	* src/libfakekey.c: (fakekey_send_keyevent),
+	(fakekey_press_keysym):
+	Call XSync without True ;)
+        A different try at remapping keysyms so they
+        work right away
+
 2005-04-26  mallum,,,  <mallum@openedhand.com>
 
 	* configure.ac:
