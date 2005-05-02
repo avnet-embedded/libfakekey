@@ -72,10 +72,10 @@ fakekey_init(Display *xdpy);
  * @return 
  */
 int
-fakekey_press(FakeKey       *fk, 
-	      unsigned char *utf8_char_in,
-	      int            len_bytes,
-	      int            modifiers);
+fakekey_press(FakeKey             *fk, 
+	      const unsigned char *utf8_char_in,
+	      int                  len_bytes,
+	      int                  modifiers);
 
 /** 
  *  Repreats a press of the currently held key ( from #fakekey_press )

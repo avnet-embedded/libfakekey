@@ -371,10 +371,10 @@ fakekey_press_keysym(FakeKey *fk,
 }
 
 int
-fakekey_press(FakeKey       *fk, 
-	      unsigned char *utf8_char_in,
-	      int            len_bytes,
-	      int            flags)
+fakekey_press(FakeKey             *fk, 
+	      const unsigned char *utf8_char_in,
+	      int                  len_bytes,
+	      int                  flags)
 {
   FkChar32   ucs4_out;
 
