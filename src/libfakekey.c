@@ -1,3 +1,4 @@
+/* -*- mode:C; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * libFakeKey
  *
@@ -300,6 +301,11 @@ fakekey_press_keysym(FakeKey *fk,
 	    flags |= FAKEKEYMOD_SHIFT; 	/* can get at it via shift */
 	  else
 	    code = 0; /* urg, some other modifier do it the heavy way */
+	}
+      else
+        {
+          /* the keysym is unshifted; clear the shift flag if it is set */
+          flags &= ~FAKEKEYMOD_SHIFT;
 	}
     }
 
