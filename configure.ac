@@ -1,5 +1,5 @@
 >AC_PREREQ(2.53)
-AC_INIT([libfakekey], 0.1, [mallum@openedhand.com])
+AC_INIT([libfakekey], 0.2, [mallum@openedhand.com])
 AC_CONFIG_SRCDIR([src/libfakekey.c])
 
 AC_CONFIG_AUX_DIR(.)
