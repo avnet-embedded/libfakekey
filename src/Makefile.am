@@ -1,6 +1,6 @@
 source_c = libfakekey.c
 
-AM_CFLAGS = @FAKEKEY_CFLAGS@
+AM_CFLAGS = @FAKEKEY_CFLAGS@ -I${top_srcdir}
 
 libfakekey_la_SOURCES     = $(source_c)
 
