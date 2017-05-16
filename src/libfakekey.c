@@ -357,7 +357,16 @@ fakekey_press_keysym(FakeKey *fk,
        * 
        * Probably better to try and grab the mapping notify *here* ?
        */
-  
+
+      if (XKeycodeToKeysym(fk->xdpy, code, 0) != keysym)
+        {
+          DBG("does not equal code for index 0, needs shift?\n");
+          /* TODO: Assumes 1st modifier is shifted  */
+          if (XKeycodeToKeysym(fk->xdpy, code, 1) == keysym)
+            flags |= FAKEKEYMOD_SHIFT; 	/* can get at it via shift */
+          else
+            DBG("attempted to add keycode to keymap but seem to have failed");
+        }
     }
 
   if (code != 0) 
